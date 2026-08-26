@@ -1,0 +1,14 @@
+{
+  "name": "@druto/sdk",
+  "version": "0.1.0",
+  "description": "Druto Payments SDK for TypeScript / JavaScript",
+  "main": "index.ts",
+  "types": "index.ts",
+  "exports": {
+    ".": {
+      "types": "./index.ts",
+      "import": "./index.ts",
+      "default": "./index.ts"
+    }
+  }
+}

@@ -120,3 +120,4 @@ Use a disposable EVM wallet funded only with Arc Testnet USDC. Before signing, v
 After a successful payment, confirm the transaction on Arcscan and then open the Druto seller dashboard. The dashboard should show the verified payment only after Druto’s onchain verification and signed webhook flow complete.
 #   l u v r e f r a n c  
  # luvrefranc
+# luvrefranc

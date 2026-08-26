@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@druto/sdk':
-        specifier: file:../druto-sdk
-        version: file:../druto-sdk
+        specifier: file:./packages/druto-sdk
+        version: link:packages/druto-sdk
       lucide-react:
         specifier: ^0.468.0
         version: 0.468.0(react@19.1.0)
@@ -40,10 +40,16 @@ importers:
         specifier: ^2.1.5
         version: 2.1.9(@types/node@20.19.43)
 
-packages:
+  packages/druto-sdk:
+    devDependencies:
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.9
+        version: 2.1.9(@types/node@20.19.43)
 
-  '@druto/sdk@file:../druto-sdk':
-    resolution: {directory: ../druto-sdk, type: directory}
+packages:
 
   '@emnapi/runtime@1.11.3':
     resolution: {integrity: sha512-Xz4Tpyki7XyrpbUK1jR1AhdAdaXyhhY4lZ3neLodmhpuWfy2PAQN5B46sAiU4liOXGLkHypn/qU+jvfWSCYYLA==}
@@ -859,8 +865,6 @@ packages:
     hasBin: true
 
 snapshots:
-
-  '@druto/sdk@file:../druto-sdk': {}
 
   '@emnapi/runtime@1.11.3':
     dependencies:

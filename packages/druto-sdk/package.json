@@ -1,14 +1,25 @@
 {
   "name": "@druto/sdk",
-  "version": "0.1.0",
-  "description": "Druto Payments SDK for TypeScript / JavaScript",
-  "main": "index.ts",
-  "types": "index.ts",
+  "version": "0.1.1",
+  "description": "Starter SDK for integrating Druto hosted Arc Testnet USDC checkout.",
+  "type": "module",
+  "main": "dist/src/index.js",
+  "module": "dist/src/index.js",
+  "types": "dist/src/index.d.ts",
   "exports": {
     ".": {
-      "types": "./index.ts",
-      "import": "./index.ts",
-      "default": "./index.ts"
+      "types": "./dist/src/index.d.ts",
+      "import": "./dist/src/index.js"
     }
+  },
+  "files": ["dist", "README.md", "GUIDE.md", "examples"],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "check": "tsc --noEmit -p tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^2.1.9"
   }
 }

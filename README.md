@@ -118,6 +118,3 @@ The server route is the trust boundary. Do not accept the browser’s total, sel
 Use a disposable EVM wallet funded only with Arc Testnet USDC. Before signing, verify the recipient, amount, chain ID `5042002`, and token. Test a successful payment, an abandoned checkout, an expired session, an incorrect amount, an inactive seller, duplicate payment-intent requests, duplicate webhook delivery, and webhook retry behavior.
 
 After a successful payment, confirm the transaction on Arcscan and then open the Druto seller dashboard. The dashboard should show the verified payment only after Druto’s onchain verification and signed webhook flow complete.
-#   l u v r e f r a n c  
- # luvrefranc
-# luvrefranc

@@ -15,3 +15,26 @@
 - [x] Add Vitest coverage for cart/order contracts, payment-intent validation, webhook signature handling, and idempotency behavior.
 - [ ] Complete a real public Arc Testnet payment and verify desktop/mobile presentation on the deployed domain after Vercel credentials are configured.
 - [x] Package the separate storefront deliverable with setup documentation.
+- [ ] Restore the live preview service so the Luvre Franc storefront opens directly in the browser.
+- [ ] Diagnose and fix the Luvre Franc `Unable to create Druto payment` checkout failure.
+- [ ] Restore visible wallet and QR checkout options after a successful Payment Intent response.
+- [ ] Verify the fix with tests and an end-to-end Arc Testnet checkout attempt, documenting any missing live credentials or seller activation requirements.
+- [ ] Restore the local Druto dashboard preview so the user can complete wallet login and Luvre Franc seller onboarding.
+- [ ] Fix the Druto seller configuration so Luvre Franc Payment Intent creation succeeds.
+- [ ] Configure the correct server-only Druto credentials and hosted checkout base URL for the Luvre Franc runtime.
+- [ ] Verify that clicking Pay with Druto opens the hosted wallet/QR gateway instead of showing the configuration error.
+- [ ] Configure the user-supplied Druto API key and webhook secret through the secure environment configuration path for Luvre Franc.
+- [ ] Verify that the configured credential belongs to an active Luvre Franc seller and that the checkout host returns a hosted gateway URL.
+- [ ] Apply and validate the supplied Druto base URL for the Luvre Franc runtime.
+- [ ] Diagnose and fix the Druto dashboard not-found state after wallet login so seller onboarding controls become reachable.
+- [ ] Document the exact Luvre Franc webhook URL format for local development and the public Vercel deployment.
+- [x] Make the reusable PayWithDrutoButton redirect directly to the hosted Druto wallet/QR gateway after Payment Intent creation, while retaining a safe fallback state if navigation is interrupted.
+- [ ] Document how Vercel serverless API routes, Druto credentials, seller IDs, and signed webhooks identify Luvre Franc without a separate backend server.
+- [x] Provide a Vercel webhook route example that verifies Druto signatures, deduplicates events, and updates the seller order status exactly once.
+- [ ] Preview Luvre Franc against the newly deployed Druto domain `https://drutopay-mucjtvys.manus.space` and verify the Arc Testnet hosted checkout handoff.
+- [ ] Diagnose the repeated deployed seller-site `Unable to create Druto payment` failure.
+- [ ] Confirm the active seller, API credential scope, Druto host, and seller identifiers match between Vercel and Druto.
+- [ ] Verify the seller-site button reaches and opens the hosted Druto payment page.
+- [x] Repair the finalX package’s local `@druto/sdk` dependency so Vercel resolves it inside the repository.
+- [x] Correct the pnpm workspace configuration and remove unsupported environment-variable names from the Vercel handoff.
+- [x] Run a clean Vercel-like install and production build, then refresh the finalX ZIP.

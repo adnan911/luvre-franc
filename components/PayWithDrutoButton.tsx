@@ -55,7 +55,11 @@ export function PayWithDrutoButton({ orderId, itemName, amount, buyerEmail,   ma
       if (!response.ok || !payload.checkoutUrl) throw new Error(payload.error ?? "Druto could not create the checkout session.");
       setSession(payload);
       setStatus("success");
-      setMessage("Payment session ready. Continue to Druto to connect a wallet or use QR.");
+      setMessage("Payment session ready. Redirecting to Druto for wallet or QR payment…");
+      // The hosted Druto page owns wallet connection and QR presentation.
+      // Keep the browser redirect here so one Pay with Druto click completes
+      // the handoff without exposing API credentials or receiving-wallet logic.
+      window.location.assign(payload.checkoutUrl);
     } catch (error) {
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "Unable to start payment. Please try again.");

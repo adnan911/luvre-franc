@@ -17,32 +17,34 @@ type Props = {
 };
 
 type PaymentSession = {
-  id: string;
+  id?: string;
+  paymentIntentId?: string;
   checkoutUrl: string;
-  displayAmount: string;
-  asset: "USDC";
-  network: "arc-testnet";
-  merchantAddress: string;
-  expiresAt: string;
+  displayAmount?: string;
+  asset?: "USDC";
+  network?: "arc-testnet";
+  merchantAddress?: string;
+  expiresAt?: string;
 };
 
-export function PayWithDrutoButton({ orderId, itemName, amount, buyerEmail,   marketplaceId, sellerId, items, shippingAddress }: Props) {
+export function PayWithDrutoButton({ orderId, itemName, amount, buyerEmail, marketplaceId, sellerId, items, shippingAddress }: Props) {
   const [status, setStatus] = useState<"ready" | "loading" | "error" | "success">("ready");
   const [message, setMessage] = useState("");
   const [session, setSession] = useState<PaymentSession | null>(null);
 
   async function startPayment() {
     setStatus("loading");
-    setMessage("Creating a secure payment session…");
+    setMessage("Creating a secure payment session on Arc Testnet…");
     setSession(null);
     try {
-      const response = await fetch("/api/druto/create-payment", {
+      const response = await fetch("/api/checkout", {
         method: "POST",
-        headers: { "content-type": "application/json" },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           orderId,
           itemName,
           amount,
+          customerEmail: buyerEmail,
           buyerEmail,
           marketplaceId,
           sellerId,
@@ -51,14 +53,17 @@ export function PayWithDrutoButton({ orderId, itemName, amount, buyerEmail,   ma
           returnUrl: `${window.location.origin}/orders/${encodeURIComponent(orderId)}/paid`,
         }),
       });
+
       const payload = await response.json() as PaymentSession & { error?: string };
-      if (!response.ok || !payload.checkoutUrl) throw new Error(payload.error ?? "Druto could not create the checkout session.");
+      if (!response.ok || !payload.checkoutUrl) {
+        throw new Error(payload.error ?? "Druto could not create the checkout session.");
+      }
+
       setSession(payload);
       setStatus("success");
-      setMessage("Payment session ready. Redirecting to Druto for wallet or QR payment…");
-      // The hosted Druto page owns wallet connection and QR presentation.
-      // Keep the browser redirect here so one Pay with Druto click completes
-      // the handoff without exposing API credentials or receiving-wallet logic.
+      setMessage("Payment session ready. Directing to Druto for wallet or QR checkout…");
+
+      // Direct the buyer immediately to the returned Druto checkoutUrl
       window.location.assign(payload.checkoutUrl);
     } catch (error) {
       setStatus("error");
@@ -67,7 +72,7 @@ export function PayWithDrutoButton({ orderId, itemName, amount, buyerEmail,   ma
   }
 
   function openCheckout() {
-    if (!session) return;
+    if (!session?.checkoutUrl) return;
     window.location.assign(session.checkoutUrl);
   }
 
@@ -75,12 +80,12 @@ export function PayWithDrutoButton({ orderId, itemName, amount, buyerEmail,   ma
     <div className="druto-pay-shell">
       {status === "ready" && (
         <button className="primary-button full-button" type="button" onClick={() => void startPayment()}>
-          <span>Pay with Druto</span><ArrowUpRight size={15} />
+          <span>Pay with Druto (USDC on Arc)</span><ArrowUpRight size={15} />
         </button>
       )}
       {status === "loading" && (
         <button className="primary-button full-button" type="button" disabled aria-busy="true">
-          <LoaderCircle className="spinning-icon" size={15} /><span>Preparing secure checkout</span>
+          <LoaderCircle className="spinning-icon" size={15} /><span>Preparing Arc Checkout…</span>
         </button>
       )}
       {status === "success" && session && (
@@ -89,7 +94,7 @@ export function PayWithDrutoButton({ orderId, itemName, amount, buyerEmail,   ma
             <Check size={15} /><span>Continue to wallet / QR</span><ArrowUpRight size={15} />
           </button>
           <div className="status-box success" role="status">
-            <p><strong>{message}</strong><br />{session.displayAmount} {session.asset} · Arc Testnet</p>
+            <p><strong>{message}</strong><br />{session.displayAmount || `${amount.toFixed(2)} USDC`} · Arc Testnet</p>
           </div>
         </>
       )}
@@ -99,7 +104,11 @@ export function PayWithDrutoButton({ orderId, itemName, amount, buyerEmail,   ma
           <button className="secondary-button retry-button" type="button" onClick={() => void startPayment()}>Try again</button>
         </>
       )}
-      {status !== "error" && <p className="checkout-trust"><ShieldCheck size={13} /> Non-custodial checkout · Druto verifies onchain settlement</p>}
+      {status !== "error" && (
+        <p className="checkout-trust">
+          <ShieldCheck size={13} /> Non-custodial checkout · Druto verifies onchain settlement
+        </p>
+      )}
     </div>
   );
 }

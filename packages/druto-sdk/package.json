@@ -3,13 +3,14 @@
   "version": "0.1.1",
   "description": "Starter SDK for integrating Druto hosted Arc Testnet USDC checkout.",
   "type": "module",
-  "main": "dist/src/index.js",
-  "module": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
+  "main": "index.ts",
+  "module": "index.ts",
+  "types": "index.ts",
   "exports": {
     ".": {
-      "types": "./dist/src/index.d.ts",
-      "import": "./dist/src/index.js"
+      "types": "./index.ts",
+      "import": "./index.ts",
+      "default": "./index.ts"
     }
   },
   "files": ["dist", "README.md", "GUIDE.md", "examples"],

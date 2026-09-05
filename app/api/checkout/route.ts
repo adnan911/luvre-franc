@@ -155,22 +155,16 @@ export async function POST(request: Request) {
       }
     }
 
-    // Seamless fallback to local/embedded Druto checkout gateway if remote session is not available
     if (!checkoutUrl) {
-      const checkoutParams = new URLSearchParams({
-        orderId,
-        amount: trustedTotal.toFixed(2),
-        itemName,
-        buyerEmail: email,
-        marketplaceId,
-        sellerId,
-        returnUrl,
-      });
-      checkoutUrl = `/druto-checkout?${checkoutParams.toString()}`;
+      return NextResponse.json(
+        { error: "Failed to create Druto payment intent session" },
+        { status: 502 }
+      );
     }
 
     return NextResponse.json({
       checkoutUrl,
+      redirectUrl: checkoutUrl,
       paymentIntentId,
       orderId,
       amount: trustedTotal.toFixed(2),

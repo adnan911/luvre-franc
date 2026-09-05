@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUpRight, Check, LoaderCircle, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, LoaderCircle, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 
 type CartLine = { productId: string; name: string; quantity: number; unitPrice: number };
@@ -16,35 +16,22 @@ type Props = {
   shippingAddress: { name: string; line1: string; city: string; postalCode: string; country: string };
 };
 
-type PaymentSession = {
-  id?: string;
-  paymentIntentId?: string;
-  checkoutUrl: string;
-  displayAmount?: string;
-  asset?: "USDC";
-  network?: "arc-testnet";
-  merchantAddress?: string;
-  expiresAt?: string;
-};
-
 export function PayWithDrutoButton({ orderId, itemName, amount, buyerEmail, marketplaceId, sellerId, items, shippingAddress }: Props) {
-  const [status, setStatus] = useState<"ready" | "loading" | "error" | "success">("ready");
-  const [message, setMessage] = useState("");
-  const [session, setSession] = useState<PaymentSession | null>(null);
+  const [status, setStatus] = useState<"ready" | "loading" | "error">("ready");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  async function startPayment() {
+  async function handlePay() {
     setStatus("loading");
-    setMessage("Creating a secure payment session on Arc Testnet…");
-    setSession(null);
+    setErrorMessage("");
+
     try {
-      const response = await fetch("/api/checkout", {
+      const response = await fetch("/api/druto/create-payment", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           orderId,
-          itemName,
           amount,
-          customerEmail: buyerEmail,
+          itemName,
           buyerEmail,
           marketplaceId,
           sellerId,
@@ -54,56 +41,50 @@ export function PayWithDrutoButton({ orderId, itemName, amount, buyerEmail, mark
         }),
       });
 
-      const payload = await response.json() as PaymentSession & { error?: string };
-      if (!response.ok || !payload.checkoutUrl) {
-        throw new Error(payload.error ?? "Druto could not create the checkout session.");
+      const { redirectUrl, checkoutUrl, error } = await response.json();
+      const targetUrl = redirectUrl || checkoutUrl;
+
+      if (error || !response.ok || !targetUrl) {
+        throw new Error(error || "Payment initiation failed. Please try again.");
       }
 
-      setSession(payload);
-      setStatus("success");
-      setMessage("Payment session ready. Directing to Druto for wallet or QR checkout…");
-
-      // Direct the buyer immediately to the returned Druto checkoutUrl
-      window.location.assign(payload.checkoutUrl);
-    } catch (error) {
+      // Redirect buyer directly to Hosted Druto Checkout
+      window.location.href = targetUrl;
+    } catch (error: any) {
       setStatus("error");
-      setMessage(error instanceof Error ? error.message : "Unable to start payment. Please try again.");
+      const msg = error instanceof Error ? error.message : "Payment initiation failed. Please try again.";
+      setErrorMessage(msg);
+      alert("Payment initiation failed: " + msg);
     }
-  }
-
-  function openCheckout() {
-    if (!session?.checkoutUrl) return;
-    window.location.assign(session.checkoutUrl);
   }
 
   return (
     <div className="druto-pay-shell">
       {status === "ready" && (
-        <button className="primary-button full-button" type="button" onClick={() => void startPayment()}>
-          <span>Pay with Druto (USDC on Arc)</span><ArrowUpRight size={15} />
+        <button className="primary-button full-button" type="button" onClick={() => void handlePay()}>
+          <span>Pay ${amount.toFixed(2)} USDC with Druto</span>
+          <ArrowUpRight size={15} />
         </button>
       )}
+
       {status === "loading" && (
         <button className="primary-button full-button" type="button" disabled aria-busy="true">
-          <LoaderCircle className="spinning-icon" size={15} /><span>Preparing Arc Checkout…</span>
+          <LoaderCircle className="spinning-icon" size={15} />
+          <span>Redirecting to Druto Checkout…</span>
         </button>
       )}
-      {status === "success" && session && (
-        <>
-          <button className="primary-button full-button" type="button" onClick={openCheckout}>
-            <Check size={15} /><span>Continue to wallet / QR</span><ArrowUpRight size={15} />
-          </button>
-          <div className="status-box success" role="status">
-            <p><strong>{message}</strong><br />{session.displayAmount || `${amount.toFixed(2)} USDC`} · Arc Testnet</p>
-          </div>
-        </>
-      )}
+
       {status === "error" && (
         <>
-          <div className="status-box error" role="alert"><p>{message}</p></div>
-          <button className="secondary-button retry-button" type="button" onClick={() => void startPayment()}>Try again</button>
+          <div className="status-box error" role="alert">
+            <p>{errorMessage}</p>
+          </div>
+          <button className="secondary-button retry-button" type="button" onClick={() => void handlePay()}>
+            Try again
+          </button>
         </>
       )}
+
       {status !== "error" && (
         <p className="checkout-trust">
           <ShieldCheck size={13} /> Non-custodial checkout · Druto verifies onchain settlement

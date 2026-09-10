@@ -103,7 +103,7 @@ export default function HomePage() {
 
       <section className="section" id="collection">
         <div className="container">
-          <div className="section-heading"><div><span className="eyebrow">The collection</span><h2 className="display">Pieces with a point of view.</h2></div><p>Six foundational pieces for the daily rotation. Add to cart, then pay in Arc Testnet USDC at checkout.</p></div>
+          <div className="section-heading"><div><span className="eyebrow">The collection</span><h2 className="display">Pieces with a point of view.</h2></div><p>Curated garments and daily objects for the daily rotation. Add to bag, then pay in Arc Testnet USDC at checkout.</p></div>
           <div className="product-grid">
             {products.map((product) => <article className="product-card" key={product.id}>
               <div className={`product-image tone-${product.tone}`}><img src={product.image} alt={product.name} />{product.badge && <span className="product-badge">{product.badge}</span>}</div>

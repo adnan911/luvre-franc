@@ -38,6 +38,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 export function createOrder(order: Omit<Order, "status" | "createdAt">): Order {
+  if (ordersStore.has(order.id)) throw new Error("Order already exists");
   const newOrder: Order = {
     ...order,
     status: "PENDING",
@@ -61,6 +62,12 @@ export function markOrderPaid(
 ): Order | undefined {
   const existing = ordersStore.get(orderId);
   if (existing) {
+    if (existing.status === "PAID") {
+      if (details?.paymentIntentId !== existing.paymentIntentId || details?.transactionHash !== existing.transactionHash) {
+        throw new Error("Order is already paid with a different settlement");
+      }
+      return existing;
+    }
     existing.status = "PAID";
     if (details?.paymentIntentId) existing.paymentIntentId = details.paymentIntentId;
     if (details?.transactionHash) existing.transactionHash = details.transactionHash;
@@ -69,20 +76,7 @@ export function markOrderPaid(
     return existing;
   }
   
-  // If order was created ephemerally on the client, create and mark as paid
-  const placeholderOrder: Order = {
-    id: orderId,
-    amount: 0,
-    status: "PAID",
-    items: [],
-    customerEmail: "",
-    paymentIntentId: details?.paymentIntentId,
-    transactionHash: details?.transactionHash,
-    paidAt: details?.paidAt || new Date().toISOString(),
-    createdAt: new Date().toISOString(),
-  };
-  ordersStore.set(orderId, placeholderOrder);
-  return placeholderOrder;
+  return undefined;
 }
 
 export function listOrders(): Order[] {

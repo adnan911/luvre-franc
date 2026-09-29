@@ -22,7 +22,7 @@ export default async function PaidPage({ params }: { params: Promise<{ orderId: 
 
       <PaidReceiptCard
         orderId={orderId}
-        order={order || { id: orderId, amount: 0, status: "PAID" }}
+        order={order || { id: orderId, amount: 0, status: "PENDING" }}
         marketplaceUrl="/"
         marketplaceName="Return to Marketplace"
       />

@@ -63,13 +63,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Invalid Druto webhook signature" }, { status: 401 });
     }
 
-    const event = parsePaymentVerifiedEvent(rawBody) || JSON.parse(rawBody);
-    if (!event || event.type !== "payment.verified") {
+    const event = parsePaymentVerifiedEvent(rawBody);
+    if (!event || typeof event.id !== "string" || !event.id.trim() ||
+        typeof event.data?.externalOrderId !== "string" || !event.data.externalOrderId.trim() ||
+        typeof event.data?.paymentIntentId !== "string" || !event.data.paymentIntentId.trim()) {
       return NextResponse.json({ error: "Unsupported or invalid event type" }, { status: 400 });
     }
 
-    const eventId = headerEventId || event.id || event.data?.paymentIntentId || "evt_unknown";
-    if (headerEventId && event.id && headerEventId !== event.id) {
+    const eventId = event.id;
+    if (!headerEventId || headerEventId !== event.id) {
       return NextResponse.json({ error: "Event ID mismatch" }, { status: 400 });
     }
 
@@ -105,6 +107,9 @@ export async function POST(request: Request) {
         transactionHash,
         paidAt: new Date().toISOString(),
       });
+      if (!updatedOrder) {
+        return NextResponse.json({ error: "Order not found; payment requires reconciliation" }, { status: 409 });
+      }
 
       console.info(`[Druto Webhook] ✅ Verified Payment for Order ${orderId}:`, {
         eventId,

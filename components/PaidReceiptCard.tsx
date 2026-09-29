@@ -23,7 +23,7 @@ export function PaidReceiptCard({
   marketplaceUrl = "/",
   marketplaceName = "Return to Marketplace",
 }: Props) {
-  const isPaid = order?.status === "PAID" || !order?.status || order?.status === "SETTLED";
+  const isPaid = order?.status === "PAID" || order?.status === "SETTLED";
   const txHash = order?.transactionHash;
   const explorerUrl = txHash ? `https://explorer.testnet.arc.io/tx/${txHash}` : null;
 

@@ -58,7 +58,7 @@ export default function HomePage() {
 
   function beginCheckout() {
     if (!cart.length) return;
-    setOrderId(`lf-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+    setOrderId(crypto.randomUUID());
     setCartOpen(false);
     setCheckoutOpen(true);
   }

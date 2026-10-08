@@ -1,7 +1,7 @@
 import { afterAll, afterEach, beforeAll, expect, it } from 'vitest';
 import mysql, { type Pool, type Connection } from 'mysql2/promise';
 import { randomBytes } from 'node:crypto';
-import { createOrderStore } from '../lib/orders';
+import { createOrderStore } from '../lib/orders.mysql';
 import { draft, event } from './fixtures';
 import { sha256 } from '../lib/trusted-order';
 import type { Order } from '../lib/payment-model';

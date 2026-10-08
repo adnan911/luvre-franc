@@ -17,8 +17,8 @@ export function validateSession(value: any, order: Order, origin: string): Payme
   if (typeof value.checkoutUrl !== 'string' || url.origin !== origin || url.pathname !== `/checkout/${value.id}` || url.search || url.hash || url.username || url.password) throw invalid();
   return { id: value.id, checkoutUrl: url.href, expiresAt };
 }
-export async function createPaymentSession(order: Order, idempotencyKey: string, config: ReturnType<typeof checkoutConfig>) {
-  const response = await fetch(`${config.apiUrl}/api/trpc/payments.createIntent`, {
+export async function createPaymentSession(order: Order, idempotencyKey: string, config: ReturnType<typeof checkoutConfig>, transport: typeof fetch = fetch) {
+  const response = await transport(`${config.apiUrl}/api/trpc/payments.createIntent`, {
     method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${config.apiKey}` },
     body: JSON.stringify({ json: { externalOrderId: order.id, idempotencyKey,
       itemName: 'Luvre Franc order', amount: atomicToDecimal(order.amountAtomic),

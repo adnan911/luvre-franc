@@ -1,14 +1,14 @@
 import { PaymentError } from './payment-model';
-function required(name: string) {
-  const value = process.env[name]?.trim();
+function required(name: string, values: Record<string, string | undefined>) {
+  const value = values[name]?.trim();
   if (!value || /replace|placeholder/i.test(value)) throw new PaymentError(503, 'Payment service configuration is incomplete');
   return value;
 }
-export function checkoutConfig() {
+export function checkoutConfig(values: Record<string, string | undefined> = process.env) {
   const cfg = {
-    marketplaceId: required('LUVRE_DRUTO_MARKETPLACE_ID'), sellerId: required('LUVRE_DRUTO_SELLER_ID'),
-    merchantAccountId: required('LUVRE_DRUTO_MERCHANT_ACCOUNT_ID'), receivingAddress: required('LUVRE_DRUTO_RECEIVING_ADDRESS').toLowerCase(),
-    apiKey: required('DRUTO_API_KEY'), apiUrl: required('DRUTO_API_URL'), shopUrl: required('LUVRE_SHOP_URL'),
+    marketplaceId: required('LUVRE_DRUTO_MARKETPLACE_ID', values), sellerId: required('LUVRE_DRUTO_SELLER_ID', values),
+    merchantAccountId: required('LUVRE_DRUTO_MERCHANT_ACCOUNT_ID', values), receivingAddress: required('LUVRE_DRUTO_RECEIVING_ADDRESS', values).toLowerCase(),
+    apiKey: required('DRUTO_API_KEY', values), apiUrl: required('DRUTO_API_URL', values), shopUrl: required('LUVRE_SHOP_URL', values),
   };
   if (!/^[A-Za-z0-9_-]{1,128}$/.test(cfg.marketplaceId) || !/^[A-Za-z0-9_-]{1,128}$/.test(cfg.sellerId) ||
     !/^[A-Za-z0-9_-]{1,32}$/.test(cfg.merchantAccountId) || !/^0x[0-9a-f]{40}$/.test(cfg.receivingAddress) || /^0x0{40}$/.test(cfg.receivingAddress)) throw new PaymentError(503, 'Invalid seller configuration');

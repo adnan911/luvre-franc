@@ -24,7 +24,7 @@ export async function createPaymentSession(order: Order, idempotencyKey: string,
       itemName: 'Luvre Franc order', amount: atomicToDecimal(order.amountAtomic),
       returnUrl: `${config.shopUrl}/orders/${order.id}/paid`,
       seller: { marketplaceId: order.marketplaceId, sellerId: order.sellerId, merchantAccountId: order.merchantAccountId } } }),
-    signal: AbortSignal.timeout(15000), redirect: 'error', cache: 'no-store',
+    signal: AbortSignal.timeout(15000), redirect: 'manual', cache: 'no-store',
   });
   if (!response.ok) { await response.body?.cancel(); throw new PaymentError(502, 'Payment provider could not prepare checkout; retry the same checkout'); }
   const payload = await response.json();

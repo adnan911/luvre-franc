@@ -23,6 +23,7 @@ it.each([checkout, alternate])('saves before remote create and binds before retu
   store.bind.mockImplementation(async () => { sequence.push('bound'); });
   const http = vi.fn(async (_url, options) => { sequence.push('remote'); const body = JSON.parse(options.body).json;
     expect(options.headers.Authorization).toBe(`Bearer ${config.apiKey}`);
+    expect(options.redirect).toBe('manual');
     expect(body.amount).toBe('168.000000'); expect(body.idempotencyKey).toBe(`luvre:${saved.id}`);
     expect(body.buyerLabel).toBeUndefined(); expect(body.orderContext).toBeUndefined();
     return Response.json({ result: { data: { json: { ...event(saved).data, id: 'pi_test', displayAmount: '168.000000', expiresAt: new Date(Date.now() + 60000), checkoutUrl: '/checkout/pi_test', platformFeeBps: 0, platformFeeAmount: '0', merchantPayoutAmount: saved.amountAtomic, splitContractAddress: null } } } }); });

@@ -53,8 +53,22 @@ export default {
       if (!env.LUVRE_ORDERS_DB || !env.DRUTO_SERVICE) return unavailable();
       try {
         const config = checkoutConfig(env as unknown as Record<string, string | undefined>);
-        const serviceFetch = ((input: RequestInfo | URL, init?: RequestInit) =>
-          env.DRUTO_SERVICE.fetch(new Request(input, init))) as typeof fetch;
+        const serviceFetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+          let serviceRequest: Request;
+          try { serviceRequest = new Request(input, init); }
+          catch (error) {
+            const message = error instanceof Error ? error.message.toLowerCase() : '';
+            const reason = ['cache', 'signal', 'redirect', 'duplex', 'body', 'header', 'method', 'url', 'unsupported', 'invalid']
+              .filter(part => message.includes(part));
+            console.error('druto_service_request_error', { type: error instanceof Error ? error.name : 'unknown', reason });
+            throw error;
+          }
+          try { return await env.DRUTO_SERVICE.fetch(serviceRequest); }
+          catch (error) {
+            console.error('druto_service_fetch_error', { type: error instanceof Error ? error.name : 'unknown' });
+            throw error;
+          }
+        }) as typeof fetch;
         return await checkoutCore(request, createD1OrderStore(env.LUVRE_ORDERS_DB), config, serviceFetch);
       } catch (error) { return paymentFailure(error); }
     }

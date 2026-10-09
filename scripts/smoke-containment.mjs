@@ -16,8 +16,7 @@ try {
     const response = await fetch(`http://127.0.0.1:${port}/orders/containment-unknown/paid`).catch(() => null);
     if (response?.ok) {
       const html = await response.text();
-      assert(html.includes("Verification in Progress"));
-      assert(html.includes("Pending Confirmation"));
+      assert(html.includes("Order not found.") || html.includes("Payment status temporarily unavailable."));
       assert(!html.includes("Confirmed Onchain"));
       ready = true; break;
     }
@@ -25,5 +24,5 @@ try {
   assert(ready, "Local production server did not become ready");
   const response = await fetch(`http://127.0.0.1:${port}/api/druto/simulate-webhook`, { method: "POST" });
   assert.equal(response.status, 410);
-  console.log("PASS: unknown-order receipt stays pending; simulator returns 410.");
+  console.log("PASS: missing/unavailable order is not shown as paid; simulator returns 410.");
 } finally { child.kill(); }

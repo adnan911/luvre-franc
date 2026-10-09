@@ -1,0 +1,31 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "luvre-franc-d1-testnet",
+  "main": "workers/luvre-d1-app/index.ts",
+  "compatibility_date": "2026-10-05",
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": true,
+  "vars": {
+    "DRUTO_API_URL": "https://druto-d1-testnet.robobq.workers.dev",
+    "LUVRE_SHOP_URL": "https://luvre-franc-d1-testnet.robobq.workers.dev",
+    "LUVRE_DRUTO_MARKETPLACE_ID": "luvre-franc",
+    "LUVRE_DRUTO_SELLER_ID": "luvre-seller-1",
+    "LUVRE_DRUTO_MERCHANT_ACCOUNT_ID": "ma_4uguzltzDSiU",
+    "LUVRE_DRUTO_RECEIVING_ADDRESS": "0x49b1C6BE866396d6732a16A48D39e9fc305eF4fB",
+    "NEXT_PUBLIC_DRUTO_DASHBOARD_URL": "https://druto-d1-testnet.robobq.workers.dev/dashboard"
+  },
+  "d1_databases": [{
+    "binding": "LUVRE_ORDERS_DB",
+    "database_name": "luvre-d1-testnet",
+    "database_id": "ee1a3142-79b4-461d-8af1-5c3a7627623b",
+    "migrations_dir": "migrations-d1"
+  }],
+  "assets": {
+    "directory": "dist-cloudflare",
+    "binding": "ASSETS",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*", "/orders/*", "/druto-dashboard", "/druto-checkout"]
+  },
+  "services": [{ "binding": "DRUTO_SERVICE", "service": "druto-d1-testnet" }],
+  "observability": { "enabled": true }
+}

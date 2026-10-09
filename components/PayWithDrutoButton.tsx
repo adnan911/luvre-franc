@@ -27,17 +27,11 @@ export function PayWithDrutoButton({ orderId, itemName, amount, buyerEmail, mark
     try {
       const response = await fetch("/api/druto/create-payment", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Idempotency-Key": orderId },
         body: JSON.stringify({
-          orderId,
-          amount,
-          itemName,
           buyerEmail,
-          marketplaceId,
-          sellerId,
-          items,
+          items: items.map(({ productId, quantity }) => ({ productId, quantity })),
           shippingAddress,
-          returnUrl: `${window.location.origin}/orders/${encodeURIComponent(orderId)}/paid`,
         }),
       });
 

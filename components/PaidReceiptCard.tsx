@@ -62,7 +62,7 @@ export function PaidReceiptCard({
           )}
 
           <div className="receipt-row">
-            <span className="receipt-label">Amount Paid</span>
+            <span className="receipt-label">{isPaid ? "Amount Paid" : "Order Total"}</span>
             <span className="receipt-value receipt-amount mono">
               ${(order?.amount ?? 0).toFixed(2)} USDC
             </span>

@@ -11,8 +11,8 @@ type Customer = { name: string; email: string; line1: string; city: string; post
 
 const initialCustomer: Customer = { name: "", email: "", line1: "", city: "", postalCode: "", country: "" };
 const marketplaceId = process.env.NEXT_PUBLIC_DRUTO_MARKETPLACE_ID ?? "luvre-franc";
-const sellerId = process.env.NEXT_PUBLIC_DRUTO_SELLER_ID ?? "luvre-main";
-const sellerDashboardUrl = process.env.NEXT_PUBLIC_DRUTO_DASHBOARD_URL ?? "https://druto-platform.manus.space/dashboard";
+const sellerId = process.env.NEXT_PUBLIC_DRUTO_SELLER_ID ?? "luvre-seller-1";
+const sellerDashboardUrl = process.env.NEXT_PUBLIC_DRUTO_DASHBOARD_URL ?? "https://druto-d1-testnet.robobq.workers.dev/dashboard";
 
 function formatUsdc(value: number) {
   return `${value.toFixed(2)} USDC`;
@@ -58,7 +58,7 @@ export default function HomePage() {
 
   function beginCheckout() {
     if (!cart.length) return;
-    setOrderId(`lf-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+    setOrderId(crypto.randomUUID());
     setCartOpen(false);
     setCheckoutOpen(true);
   }

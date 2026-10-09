@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "luvre-d1-order-test",
+  "main": "tests/d1-order-worker.ts",
+  "compatibility_date": "2026-10-05",
+  "compatibility_flags": ["nodejs_compat"],
+  "d1_databases": [{
+    "binding": "LUVRE_ORDERS_DB",
+    "database_name": "luvre-d1-testnet",
+    "database_id": "ee1a3142-79b4-461d-8af1-5c3a7627623b",
+    "migrations_dir": "migrations-d1"
+  }]
+}

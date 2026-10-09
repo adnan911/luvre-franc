@@ -4,7 +4,7 @@ Luvre Franc is a marketplace integration demo for Druto. Checkout is denominated
 
 ## Cloudflare Testnet migration status
 
-The storefront order ledger is implemented for Cloudflare D1 (`luvre-d1-testnet`). The four-table schema and five integrity triggers are in `migrations-d1/0001_orders.sql`. It has been applied to the isolated remote D1 database. Local D1 tests cover checkout reservation, attempt binding, settlement, duplicate webhook handling, and a single fulfillment outbox entry. The native Cloudflare Worker and static React storefront are deployed, but checkout is deliberately unavailable until new scoped secrets and a hosted Arc Testnet payment are verified. The old Vercel deployment remains active.
+The storefront order ledger is implemented for Cloudflare D1 (`luvre-d1-testnet`). The four-table schema and five integrity triggers are in `migrations-d1/0001_orders.sql`. The native Cloudflare Worker and static React storefront are deployed. A seller-scoped API key and webhook secret are configured as Worker secrets, and one hosted 2 USDC Arc Testnet payment completed end to end: Druto verified the transfer, delivered the signed webhook, and Luvre marked the order `PAID` with one fulfillment outbox entry. Local D1 tests cover checkout reservation, attempt binding, settlement, duplicate webhook handling, and recovery after a simulated database outage. The old Vercel deployment remains active during cutover review.
 
 The deployed testnet URL is `https://luvre-franc-d1-testnet.robobq.workers.dev`. A custom domain is not required for the testnet pilot.
 
@@ -21,13 +21,13 @@ pnpm test
 
 The existing Next.js routes use TiDB for the current Vercel deployment. The Cloudflare-native Worker in `workers/luvre-d1-app/index.ts` uses the D1 binding `LUVRE_ORDERS_DB` and shares checkout/webhook validation code. The Worker configuration is in `wrangler.jsonc`. Apply migrations with `pnpm exec wrangler d1 migrations apply luvre-d1-testnet --local --config wrangler.jsonc` or `--remote` for the isolated remote database. Never apply a test migration to a production customer database.
 
-Build the static React assets with `pnpm cf:build`, run the Worker locally with `pnpm cf:preview`, and deploy with `pnpm cf:deploy`. Wrangler reported an 8.76 KiB compressed Worker bundle; storefront assets are served separately. The native route passed local and hosted smoke checks with payment secrets absent.
+Build the static React assets with `pnpm cf:build`, run the Worker locally with `pnpm cf:preview`, and deploy with `pnpm cf:deploy`. Storefront assets are served separately from the native Worker. The hosted `/api/ready` endpoint returned 200 after the D1 binding and secrets were configured.
 
 ## Secrets and seller binding
 
 The public seller identity is `luvre-franc / luvre-seller-1`, Druto merchant account `ma_4uguzltzDSiU`, receiving wallet `0x49b1C6BE866396d6732a16A48D39e9fc305eF4fB`. These are pinned server-side in the Worker configuration. Buyers cannot supply another receiving wallet, amount, or seller identity.
 
-`DRUTO_API_KEY` and `DRUTO_WEBHOOK_SECRET` are server-only Cloudflare Worker secrets. Create a fresh API key and webhook endpoint in the new Druto D1 dashboard. Register `https://luvre-franc-d1-testnet.robobq.workers.dev/api/webhooks/druto` after the marketplace Worker is deployed. Never send these secrets in chat or commit them to Git. The old Vercel keys and webhook secret must not be reused for the new D1 environment.
+`DRUTO_API_KEY` and `DRUTO_WEBHOOK_SECRET` are server-only Cloudflare Worker secrets. A fresh API key and webhook endpoint were created in the Druto D1 dashboard for `https://luvre-franc-d1-testnet.robobq.workers.dev/api/webhooks/druto`. New environments must create and store their own credentials. Never send secrets in chat or commit them to Git. The old Vercel keys and webhook secret must not be reused for the new D1 environment.
 
 ## Payment and fulfillment boundary
 
@@ -39,8 +39,8 @@ The storefront's `/druto-dashboard` route redirects to the real Druto dashboard.
 
 - Native Cloudflare Worker build and compressed size check (passed).
 - Cloudflare Worker deploy with D1 binding; reject requests when secrets are missing (passed).
-- New D1-scoped Druto API key and signed webhook endpoint, stored only as Worker secrets.
-- Hosted Arc Testnet checkout with the verified seller, correct direct recipient, 0% fee, and actual on-chain receipt.
-- Duplicate webhook delivery, invalid signature, mismatched amount/recipient, timeout, expired checkout, and replay tests.
-- Reconciliation between Druto verified intent, Luvre paid order, D1 outbox, and Arc transaction.
-- Only after those pass: move traffic from Vercel, monitor, then retire old Vercel/TiDB demo infrastructure.
+- New D1-scoped Druto API key and signed webhook endpoint, stored only as Worker secrets (passed).
+- Hosted Arc Testnet checkout with the verified seller, correct direct recipient, 0% fee, and actual on-chain receipt (passed for one 2 USDC payment).
+- Local D1 duplicate webhook, invalid signature, wrong amount, and simulated storage-outage recovery tests (passed). Live receiver interruption and replay remain open.
+- Read-only reconciliation between Druto verified intent, Luvre paid order, D1 outbox, and Arc receipt (passed for bound demo orders; limited to 100 orders per run).
+- Add monitoring, alerts, a fulfillment consumer, backup/restore drill, and rollback procedure before moving public traffic or retiring Vercel/TiDB.
